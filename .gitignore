@@ -1,0 +1,29 @@
+# Ambientes e caches Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Artefatos de treino e pesos (gerados; distribuir via Drive/Releases)
+runs/
+models/*.pt
+*.pt
+
+# Dados gerados (o dataset bruto em data/bruto e data/teste é versionado)
+data/processado/
+*.cache
+
+# Documentos locais (podem conter credenciais — NÃO versionar)
+*.docx
+
+# Binários baixados no Colab
+cloudflared
+
+# Pasta de origem local das fotos (o dataset curado fica em data/bruto)
+Imagens/
