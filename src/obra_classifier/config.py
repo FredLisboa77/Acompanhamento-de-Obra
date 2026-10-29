@@ -12,7 +12,7 @@ from pathlib import Path
 
 CLASSES: tuple[str, ...] = ("Fundação", "Alvenaria", "Cobertura", "Revestimento Externo")
 
-EXTENSOES_IMAGEM: frozenset[str] = frozenset({".jpg", ".jpeg", ".png"})
+EXTENSOES_IMAGEM: frozenset[str] = frozenset({".jpg", ".jpeg", ".png", ".webp"})
 
 SEED_PADRAO = 42
 

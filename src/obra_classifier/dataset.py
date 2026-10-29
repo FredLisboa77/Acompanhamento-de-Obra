@@ -20,6 +20,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import cv2
 import numpy as np
 from tqdm.auto import tqdm
 
@@ -44,6 +45,38 @@ class ResumoDataset:
 def contar_por_classe(raiz: Path, classes: Sequence[str] = CLASSES) -> dict[str, int]:
     """Conta quantas imagens existem em cada subpasta de classe."""
     return {classe: len(listar_imagens(Path(raiz) / classe)) for classe in classes}
+
+
+def _dhash(imagem_rgb: np.ndarray, lado: int = 16) -> np.ndarray:
+    """Hash perceptual (diferença entre vizinhos); resiste a redimensionar e recomprimir."""
+    cinza = cv2.cvtColor(imagem_rgb, cv2.COLOR_RGB2GRAY)
+    reduzida = cv2.resize(cinza, (lado + 1, lado), interpolation=cv2.INTER_AREA)
+    return (reduzida[:, 1:] > reduzida[:, :-1]).flatten()
+
+
+def encontrar_duplicatas(
+    raiz: Path, classes: Sequence[str] = CLASSES, limiar: int = 8
+) -> list[tuple[Path, Path, int]]:
+    """Encontra pares de imagens quase idênticas em todo o dataset, inclusive entre classes.
+
+    Duplicatas fazem a mesma foto cair em treino e validação (inflando a métrica) e,
+    se estiverem em classes diferentes, indicam erro de rótulo. Retorna tuplas
+    ``(imagem_a, imagem_b, distancia)``, onde a distância vai de 0 a 256 bits.
+    """
+    hashes: list[tuple[Path, np.ndarray]] = []
+    for classe in classes:
+        for caminho in listar_imagens(Path(raiz) / classe):
+            imagem = ler_imagem_rgb(caminho)
+            if imagem is not None:
+                hashes.append((caminho, _dhash(imagem)))
+
+    pares = []
+    for i, (caminho_a, hash_a) in enumerate(hashes):
+        for caminho_b, hash_b in hashes[i + 1 :]:
+            distancia = int(np.count_nonzero(hash_a != hash_b))
+            if distancia <= limiar:
+                pares.append((caminho_a, caminho_b, distancia))
+    return pares
 
 
 def dividir_treino_validacao(

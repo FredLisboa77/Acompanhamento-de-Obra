@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import cv2
+import numpy as np
 import pytest
 
 from obra_classifier.augmentation import criar_pipeline
@@ -7,9 +9,10 @@ from obra_classifier.config import ConfigDataset
 from obra_classifier.dataset import (
     contar_por_classe,
     dividir_treino_validacao,
+    encontrar_duplicatas,
     preparar_dataset,
 )
-from obra_classifier.imagens import ler_imagem_rgb, listar_imagens
+from obra_classifier.imagens import ler_imagem_rgb, listar_imagens, salvar_imagem_rgb
 
 CLASSES_TESTE = ("Fundação", "Alvenaria")
 
@@ -78,3 +81,19 @@ def test_preparar_dataset_recusa_destino_que_contem_origem(dataset_bruto: Path) 
 def test_config_dataset_invalida(kwargs: dict) -> None:
     with pytest.raises(ValueError):
         ConfigDataset(**kwargs)
+
+
+def test_encontrar_duplicatas_detecta_copia_redimensionada_em_outra_classe(
+    dataset_bruto: Path,
+) -> None:
+    # Imagem com estrutura (gradiente + retângulo), como uma foto real; ruído puro não
+    # sobrevive a redimensionamento nem para um hash perceptual.
+    original = np.zeros((120, 160, 3), dtype=np.uint8)
+    original[..., 0] = np.linspace(0, 255, 160, dtype=np.uint8)
+    cv2.rectangle(original, (40, 30), (110, 90), (255, 255, 255), -1)
+    salvar_imagem_rgb(original, dataset_bruto / "Fundação" / "foto.jpg")
+    salvar_imagem_rgb(cv2.resize(original, (80, 60)), dataset_bruto / "Alvenaria" / "copia.png")
+
+    pares = encontrar_duplicatas(dataset_bruto, CLASSES_TESTE)
+
+    assert [(a.name, b.name) for a, b, _ in pares] == [("foto.jpg", "copia.png")]
