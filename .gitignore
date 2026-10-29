@@ -1,0 +1,30 @@
+# Ambientes e caches Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Artefatos de treino e pesos (gerados; distribuir via Drive/Releases)
+runs/
+models/*.pt
+*.pt
+
+# Dados (imagens não são versionadas)
+data/
+Alvenaria/
+Cobertura/
+Fundação/
+Revestimento Externo/
+Imagens para Treinamento/
+
+# Documentos locais (podem conter credenciais — NÃO versionar)
+*.docx
+
+# Binários baixados no Colab
+cloudflared
