@@ -20,6 +20,11 @@ SEED_PADRAO = 42
 VARIAVEL_AMBIENTE_MODELO = "OBRA_MODELO"
 CAMINHO_MODELO_PADRAO = Path("models/best.pt")
 
+# Pesos publicados como asset do último GitHub Release do repositório.
+URL_MODELO_RELEASE = (
+    "https://github.com/FredLisboa77/Acompanhamento-de-Obra/releases/latest/download/best.pt"
+)
+
 
 @dataclass(frozen=True)
 class ConfigDataset:

@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from obra_classifier.predicao import carregar_modelo, classificar
+from obra_classifier.predicao import baixar_modelo, carregar_modelo, classificar
 
 
 class _ModeloFalso:
@@ -24,3 +24,21 @@ def test_classificar_retorna_classe_dominante() -> None:
 def test_carregar_modelo_inexistente_explica_o_erro(tmp_path: Path) -> None:
     with pytest.raises(FileNotFoundError, match="OBRA_MODELO"):
         carregar_modelo(tmp_path / "best.pt")
+
+
+def test_baixar_modelo_salva_arquivo_sem_deixar_temporario(tmp_path: Path) -> None:
+    origem = tmp_path / "remoto.pt"
+    origem.write_bytes(b"pesos")
+    destino = tmp_path / "models" / "best.pt"
+
+    baixar_modelo(destino, url=origem.as_uri())
+
+    assert destino.read_bytes() == b"pesos"
+    assert list(destino.parent.iterdir()) == [destino]
+
+
+def test_baixar_modelo_com_falha_nao_deixa_arquivo(tmp_path: Path) -> None:
+    destino = tmp_path / "best.pt"
+    with pytest.raises(OSError):
+        baixar_modelo(destino, url=(tmp_path / "inexistente.pt").as_uri())
+    assert list(tmp_path.iterdir()) == []

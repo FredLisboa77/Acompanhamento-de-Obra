@@ -2,10 +2,11 @@
 
 Exemplos::
 
-    obra-classifier preparar --origem "Dataset_Bruto" --destino data/processado
+    obra-classifier preparar                      # data/bruto -> data/processado
     obra-classifier treinar --dados data/processado --epocas 50
     obra-classifier avaliar --dados data/processado
-    obra-classifier prever foto.jpg
+    obra-classifier baixar-modelo                 # best.pt do GitHub Release
+    obra-classifier prever data/teste/*.jpeg
 """
 
 from __future__ import annotations
@@ -14,7 +15,12 @@ import argparse
 import logging
 from pathlib import Path
 
-from obra_classifier.config import ConfigDataset, ConfigTreino, caminho_modelo
+from obra_classifier.config import (
+    URL_MODELO_RELEASE,
+    ConfigDataset,
+    ConfigTreino,
+    caminho_modelo,
+)
 
 
 def _preparar(args: argparse.Namespace) -> None:
@@ -51,6 +57,12 @@ def _avaliar(args: argparse.Namespace) -> None:
     print(f"Acurácia top-1: {metricas['top1']:.3f} | top-5: {metricas['top5']:.3f}")
 
 
+def _baixar_modelo(args: argparse.Namespace) -> None:
+    from obra_classifier.predicao import baixar_modelo
+
+    print(f"Modelo salvo em: {baixar_modelo(args.saida, args.url)}")
+
+
 def _prever(args: argparse.Namespace) -> None:
     from obra_classifier.predicao import carregar_modelo, classificar
 
@@ -65,7 +77,12 @@ def criar_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="comando", required=True)
 
     p = sub.add_parser("preparar", help="Divide treino/val e aplica augmentation no treino.")
-    p.add_argument("--origem", type=Path, required=True, help="Pasta com uma subpasta por classe.")
+    p.add_argument(
+        "--origem",
+        type=Path,
+        default=Path("data/bruto"),
+        help="Pasta com uma subpasta por classe.",
+    )
     p.add_argument("--destino", type=Path, default=Path("data/processado"))
     p.add_argument("--fracao-validacao", type=float, default=ConfigDataset.fracao_validacao)
     p.add_argument("--aumentos", type=int, default=ConfigDataset.aumentos_por_imagem)
@@ -85,6 +102,11 @@ def criar_parser() -> argparse.ArgumentParser:
     p.add_argument("--modelo", type=Path, default=caminho_modelo())
     p.add_argument("--imgsz", type=int, default=ConfigTreino.tamanho_imagem)
     p.set_defaults(func=_avaliar)
+
+    p = sub.add_parser("baixar-modelo", help="Baixa o best.pt publicado no GitHub Release.")
+    p.add_argument("--url", default=URL_MODELO_RELEASE)
+    p.add_argument("--saida", type=Path, default=caminho_modelo())
+    p.set_defaults(func=_baixar_modelo)
 
     p = sub.add_parser("prever", help="Classifica uma ou mais imagens.")
     p.add_argument("imagens", type=Path, nargs="+")
