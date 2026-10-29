@@ -25,7 +25,7 @@ Tudo fica neste repositório: código, dataset, notebook e modelo treinado (em [
 data/bruto/<fase>/  →  divisão treino/val  →  augmentation (só treino)  →  YOLOv8n-cls  →  models/best.pt  →  app Streamlit
 ```
 
-1. **Dataset:** fotos organizadas em uma pasta por fase, em `data/bruto/`.
+1. **Dataset:** 269 fotos organizadas em uma pasta por fase, em `data/bruto/` (Fundação 60, Alvenaria 64, Cobertura 74, Revestimento Externo 71). Antes do treino, um hash perceptual procura fotos duplicadas, mesmo redimensionadas ou recomprimidas.
 2. **Divisão:** 80% das fotos de cada fase vão para treino e 20% para validação, com seed fixa.
 3. **Data augmentation (Albumentations):** brilho/contraste, gama, espelhamento, desfoque e CLAHE geram 2 variações de cada foto de **treino**, simulando iluminação e ângulos diferentes no canteiro.
 4. **Treino:** *transfer learning* a partir do YOLOv8 Nano pré-treinado no ImageNet, com *early stopping*.
@@ -102,17 +102,21 @@ gh release create v1.1.0 models/best.pt --title "Modelo v1.1.0" --notes "Descrev
 
 ## Como ampliar o dataset
 
-Adicione fotos `.jpg`, `.jpeg` ou `.png` na pasta da fase correspondente em `data/bruto/`, faça commit, treine de novo e publique um novo Release. As pastas precisam se chamar exatamente `Fundação`, `Alvenaria`, `Cobertura` e `Revestimento Externo`.
+Adicione fotos `.jpg`, `.jpeg`, `.png` ou `.webp` na pasta da fase correspondente em `data/bruto/`. As pastas precisam se chamar exatamente `Fundação`, `Alvenaria`, `Cobertura` e `Revestimento Externo`. Depois:
+
+1. Verifique duplicatas (a célula 1.2 do notebook faz isso) e remova uma foto de cada par apontado.
+2. Faça commit, treine de novo e publique um novo Release.
 
 ## Decisões de projeto
 
+- **Sem duplicatas:** 13 pares de fotos repetidas foram removidos do dataset original (282 → 269). Cópias da mesma foto em treino e validação inflariam a métrica.
 - **Sem vazamento de dados:** a divisão treino/validação acontece **antes** do augmentation, e as variações sintéticas existem só no treino. Se cópias da mesma foto caíssem nos dois conjuntos, a validação mediria memorização em vez de generalização. Isso aconteceu na primeira versão do projeto e fazia a acurácia aparecer como 100%.
 - **Reprodutibilidade:** a mesma seed (`config.SEED_PADRAO`) controla a divisão, o augmentation e o treino.
 - **Lógica fora do notebook:** o código fica em módulos Python testados, e o notebook só os chama. Assim, notebook, linha de comando e app usam exatamente o mesmo código.
 
 ## Limitações
 
-- **Dataset pequeno** (30 fotos por fase): o augmentation ajuda, mas não substitui fotos reais de obras distintas.
+- **Dataset pequeno** (60 a 74 fotos por fase): o augmentation ajuda, mas não substitui fotos reais de obras distintas. Parte das imagens vem da internet e inclui ilustrações e banners, não só fotos de canteiro.
 - **Fases que se sobrepõem:** a transição entre alvenaria e revestimento é gradual, e uma foto pode mostrar as duas fases. O modelo escolhe só uma.
 - **Oclusão, iluminação e ângulo:** tapumes, andaimes, contraluz e fotos aéreas ou muito próximas reduzem a confiabilidade.
 - **Uso em decisões de crédito:** a saída é um **apoio** à vistoria, acompanhado da confiança da predição, não um laudo.
