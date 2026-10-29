@@ -15,13 +15,9 @@ runs/
 models/*.pt
 *.pt
 
-# Dados (imagens não são versionadas)
-data/
-Alvenaria/
-Cobertura/
-Fundação/
-Revestimento Externo/
-Imagens para Treinamento/
+# Dados gerados (o dataset bruto em data/bruto e data/teste é versionado)
+data/processado/
+*.cache
 
 # Documentos locais (podem conter credenciais — NÃO versionar)
 *.docx
