@@ -13,6 +13,8 @@ Tudo fica neste repositório: código, dataset, notebook e modelo treinado (em [
 
 ## Início rápido (Google Colab)
 
+> 📘 Guia detalhado, com o resultado esperado de cada etapa e solução de problemas: **[PASSO_A_PASSO.md](PASSO_A_PASSO.md)**
+
 1. Clique em **Abrir no Colab** acima.
 2. Em *Ambiente de execução → Alterar o tipo de ambiente de execução*, selecione **GPU T4**.
 3. Execute as células em ordem. A primeira clona este repositório e instala as dependências.
