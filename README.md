@@ -7,7 +7,7 @@ Solução prática e automatizada para o monitoramento da evolução física de 
 
 O modelo é um classificador **YOLOv8-cls** que reconhece 4 fases de obra: **Fundação, Alvenaria, Cobertura e Revestimento Externo**.
 
-> Projeto acadêmico de Visão Computacional, de Carlos Frederico Coelho Lisboa.
+> Projeto acadêmico de Visão Computacional, de Carlos Frederico Coelho Lisboa. O relatório completo do trabalho está em [`docs/`](docs/Trabalho%20de%20Vis%C3%A3o%20Computacional%20-%20Acompanhamento%20de%20Obras%20por%20IA.docx).
 
 Tudo fica neste repositório: código, dataset, notebook e modelo treinado (em [Releases](https://github.com/FredLisboa77/Acompanhamento-de-Obra/releases)). **Não é preciso Google Drive nem nenhuma conta além do Colab.**
 

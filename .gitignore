@@ -21,6 +21,8 @@ data/processado/
 
 # Documentos locais (podem conter credenciais — NÃO versionar)
 *.docx
+# Exceção: o relatório do trabalho (sem credenciais) é versionado em docs/
+!docs/*.docx
 
 # Binários baixados no Colab
 cloudflared
